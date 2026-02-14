@@ -18,10 +18,14 @@ const App: React.FC = () => {
     stripSessions: true,
     normalizeHttps: true,
     removeTrailingSlash: true,
+    enableShortening: false, // Default to false
     keepSpecificParams: []
   });
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [showQR, setShowQR] = useState<string | null>(null);
+  
+  // State for shortened URLs: { [resultId]: { url, loading } }
+  const [shortenedData, setShortenedData] = useState<Record<string, { url: string; loading: boolean }>>({});
 
   // Initialize theme
   useEffect(() => {
@@ -49,6 +53,8 @@ const App: React.FC = () => {
       result: cleanUrl(u, config)
     }));
     setResults(newResults);
+    // Reset shortening data when new input processed
+    setShortenedData({});
   }, [config]);
 
   const handlePaste = (e: React.ClipboardEvent) => {
@@ -61,24 +67,42 @@ const App: React.FC = () => {
     setInput(value);
     if (!value) {
       setResults([]);
+      setShortenedData({});
     } else {
       processInput(value);
     }
   };
 
-  const copyToClipboard = async (text: string, id: string) => {
+  const copyToClipboard = async (text: string, id: string, type: 'main' | 'short' = 'main') => {
     try {
       await navigator.clipboard.writeText(text);
-      setCopiedId(id);
+      const copyKey = type === 'main' ? id : `${id}-short`;
+      setCopiedId(copyKey);
       setTimeout(() => setCopiedId(null), 2000);
     } catch (err) {
       console.error('Failed to copy!', err);
     }
   };
 
+  const handleShorten = async (id: string, urlToShorten: string) => {
+    setShortenedData(prev => ({ ...prev, [id]: { url: '', loading: true } }));
+    
+    // Simulate hypothetical external shortening service API call
+    await new Promise(resolve => setTimeout(resolve, 1200));
+    
+    const randomHash = Math.random().toString(36).substr(2, 6);
+    const shortenedUrl = `https://lnp.io/${randomHash}`;
+    
+    setShortenedData(prev => ({ 
+      ...prev, 
+      [id]: { url: shortenedUrl, loading: false } 
+    }));
+  };
+
   const clearAll = () => {
     setInput('');
     setResults([]);
+    setShortenedData({});
   };
 
   return (
@@ -162,6 +186,15 @@ const App: React.FC = () => {
               />
               <span className="text-sm text-slate-600 dark:text-slate-400 font-medium group-hover:text-indigo-600 transition-colors">HTTPS Normal</span>
             </label>
+            <label className="flex items-center gap-2 cursor-pointer group">
+              <input 
+                type="checkbox" 
+                checked={config.enableShortening}
+                onChange={e => setConfig({...config, enableShortening: e.target.checked})}
+                className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+              />
+              <span className="text-sm text-indigo-600 dark:text-indigo-400 font-bold group-hover:underline transition-all">Shorten Option</span>
+            </label>
           </div>
         </section>
 
@@ -209,17 +242,63 @@ const App: React.FC = () => {
                         </div>
                       </div>
 
+                      {/* Shortening UI */}
+                      {config.enableShortening && (
+                        <div className="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl border border-indigo-100 dark:border-indigo-800 flex flex-col md:flex-row items-center justify-between gap-4">
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-xs font-bold text-indigo-500 uppercase tracking-wider mb-1">Short Link</h4>
+                            {shortenedData[id]?.url ? (
+                              <p className="text-base font-mono font-bold text-indigo-700 dark:text-indigo-300 break-all">
+                                {shortenedData[id].url}
+                              </p>
+                            ) : (
+                              <p className="text-sm text-indigo-400 italic">
+                                {shortenedData[id]?.loading ? 'Generating link...' : 'Optionally shorten this cleaned link'}
+                              </p>
+                            )}
+                          </div>
+                          <div className="flex shrink-0 gap-2">
+                            {shortenedData[id]?.url ? (
+                              <button 
+                                onClick={() => copyToClipboard(shortenedData[id].url, id, 'short')}
+                                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                                  copiedId === `${id}-short`
+                                    ? 'bg-emerald-500 text-white' 
+                                    : 'bg-indigo-600 text-white hover:bg-indigo-700'
+                                }`}
+                              >
+                                {copiedId === `${id}-short` ? <CheckIcon className="w-3.5 h-3.5" /> : <CopyIcon className="w-3.5 h-3.5" />}
+                                {copiedId === `${id}-short` ? 'Copied' : 'Copy Short'}
+                              </button>
+                            ) : (
+                              <button 
+                                disabled={shortenedData[id]?.loading}
+                                onClick={() => handleShorten(id, result.cleaned)}
+                                className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-400 text-white rounded-xl text-xs font-bold shadow-md shadow-indigo-500/20 transition-all active:scale-95"
+                              >
+                                {shortenedData[id]?.loading ? (
+                                  <span className="flex items-center gap-2">
+                                    <svg className="animate-spin h-3 w-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                    Shortening...
+                                  </span>
+                                ) : 'Shorten Link'}
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
                       {showQR === id && (
                         <div className="flex flex-col items-center justify-center p-8 bg-white rounded-2xl border-2 border-indigo-100 dark:border-slate-700 animate-in zoom-in-95 duration-200">
                           <QRCodeSVG 
-                            value={result.cleaned} 
+                            value={shortenedData[id]?.url || result.cleaned} 
                             size={180} 
                             level="H"
                             includeMargin={true}
                             fgColor={isDarkMode ? "#0f172a" : "#1e293b"}
                           />
                           <p className="mt-4 text-xs font-medium text-slate-400 text-center max-w-[200px]">
-                            Scan to open optimized link on your mobile device
+                            Scan to open {shortenedData[id]?.url ? 'short' : 'optimized'} link on your mobile device
                           </p>
                         </div>
                       )}

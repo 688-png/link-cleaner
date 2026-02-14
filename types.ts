@@ -13,6 +13,7 @@ export interface CleaningConfig {
   stripSessions: boolean;
   normalizeHttps: boolean;
   removeTrailingSlash: boolean;
+  enableShortening: boolean; // Added for shortening feature
   keepSpecificParams: string[];
 }
 
