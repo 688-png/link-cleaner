@@ -4,11 +4,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LinkPurify - URL Optimizer</title>
+    
+    <!-- Primary Meta Tags -->
+    <title>LinkPurify — Clean and Optimize URLs Instantly</title>
+    <meta name="title" content="LinkPurify — Clean and Optimize URLs Instantly">
+    <meta name="description" content="A lightweight, privacy-focused URL optimizer. Strip tracking parameters (UTM, fbclid, gclid), normalize links, and generate QR codes with zero data storage.">
+    <meta name="keywords" content="url cleaner, link optimizer, utm stripper, privacy tools, link shortener, qr code generator, tracking parameter remover">
+    <meta name="author" content="LinkPurify">
+    <link rel="canonical" href="https://link-cleaner-seven.vercel.app/">
+
+    <!-- Google Site Verification -->
+    <meta name="google-site-verification" content="zZWKpORvbtHj0tG_pQhgi-Nx1D1c2uaVZEaKA-i93H8" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://link-cleaner-seven.vercel.app/">
+    <meta property="og:title" content="LinkPurify — Clean and Optimize URLs Instantly">
+    <meta property="og:description" content="Strip tracking parameters, normalize links, and generate QR codes instantly. Fast, private, and 100% client-side.">
+    <meta property="og:image" content="https://link-cleaner-seven.vercel.app/og-image.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://link-cleaner-seven.vercel.app/">
+    <meta property="twitter:title" content="LinkPurify — Clean and Optimize URLs Instantly">
+    <meta property="twitter:description" content="Strip tracking parameters, normalize links, and generate QR codes instantly. Fast, private, and 100% client-side.">
+    <meta property="twitter:image" content="https://link-cleaner-seven.vercel.app/og-image.png">
+
+    <!-- PWA & Mobile -->
+    <meta name="theme-color" content="#4f46e5">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="LinkPurify">
+    <link rel="apple-touch-icon" href="/icon-192.png">
+    <link rel="manifest" href="/manifest.json">
+
+    <!-- External Assets -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
         body { font-family: 'Inter', sans-serif; }
         .glass-morphism {
@@ -21,20 +57,32 @@
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
     </style>
-<script type="importmap">
-{
-  "imports": {
-    "react/": "https://esm.sh/react@^19.2.4/",
-    "react": "https://esm.sh/react@^19.2.4",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
-    "qrcode.react": "https://esm.sh/qrcode.react@^4.2.0"
-  }
-}
-</script>
+
+    <script type="importmap">
+    {
+      "imports": {
+        "react/": "https://esm.sh/react@^19.2.4/",
+        "react": "https://esm.sh/react@^19.2.4",
+        "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+        "qrcode.react": "https://esm.sh/qrcode.react@^4.2.0"
+      }
+    }
+    </script>
 <link rel="stylesheet" href="/index.css">
 </head>
 <body class="bg-slate-50 text-slate-900 transition-colors duration-200">
     <div id="root"></div>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').then(registration => {
+                    console.log('SW registered: ', registration);
+                }).catch(registrationError => {
+                    console.log('SW registration failed: ', registrationError);
+                });
+            });
+        }
+    </script>
 <script type="module" src="/index.tsx"></script>
 </body>
 </html>
