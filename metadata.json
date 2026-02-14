@@ -1,0 +1,7 @@
+{
+  "name": "LinkPurify",
+  "description": "A lightweight, privacy-focused URL optimizer that strips tracking parameters, normalizes links, and generates QR codes instantly.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
